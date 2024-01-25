@@ -66,6 +66,8 @@ char tx_zadana[2];
 bool sterowanie = true;
 bool button = 0;
 bool good_number = true;
+float temp_poczatkowa = 26.0;
+char tekst[30];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -131,7 +133,8 @@ void lcd_zakres()
 	lcd_put_cur(0, 0);
 	lcd_send_string("Wprowadz wartosc");
 	lcd_put_cur(1, 0);
-	lcd_send_string("z zakresu 25-55");
+	sprintf((char*)tekst, "z zakresu %.f-%.fC", temp_poczatkowa, temp_poczatkowa+15.0);
+	lcd_send_string(tekst);
 	good_number = true;
 	HAL_Delay(2000);
 }
@@ -198,7 +201,6 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	BMP280_ReadTemperatureAndPressure(&temperature, &pressure);
 	sprintf((char*)text, "%.2f, ", temperature);
-	//HAL_UART_Transmit(&huart3, (uint8_t*)text, strlen(text), 1000);
 	if (HAL_GPIO_ReadPin(Przycisk_GPIO_Port, Przycisk_Pin) == GPIO_PIN_RESET)
 	{
 		sterowanie = !sterowanie;
@@ -210,7 +212,7 @@ int main(void)
 	if(sterowanie)
 	{
 		HAL_UART_Transmit(&huart3, (uint8_t*)text, strlen(text), 800);
-		temp_zadana = (float)__HAL_TIM_GET_COUNTER(&htim1) + 20.0;
+		temp_zadana = (float)__HAL_TIM_GET_COUNTER(&htim1)/2 + temp_poczatkowa;
 	}
 	else
 	{
@@ -743,12 +745,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   /* Prevent unused argument(s) compilation warning */
   UNUSED(huart);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_UART_RxCpltCallback can be implemented in the user file.
-   */
   HAL_UART_Transmit(&huart3, (uint8_t*)tx_zadana, 2, 10);
   float temp = atof(tx_zadana);
-  if(temp >= 25.0 && temp <=55.0)
+  if(temp >= temp_poczatkowa && temp <=temp_poczatkowa+15.0)
   {
 	  temp_zadana = temp;
   }
