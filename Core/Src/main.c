@@ -66,7 +66,7 @@ char tx_zadana[2];
 bool sterowanie = true;
 bool button = 0;
 bool good_number = true;
-float temp_poczatkowa = 26.0;
+float temp_poczatkowa = 20.0;
 char tekst[30];
 /* USER CODE END PV */
 
@@ -200,7 +200,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	BMP280_ReadTemperatureAndPressure(&temperature, &pressure);
-	sprintf((char*)text, "%.2f, ", temperature);
+	sprintf((char*)text, "%.2f, \n\r", temperature);
 	if (HAL_GPIO_ReadPin(Przycisk_GPIO_Port, Przycisk_Pin) == GPIO_PIN_RESET)
 	{
 		sterowanie = !sterowanie;
